@@ -9,12 +9,7 @@ let activeTabCounts = 0;
    
 // }); unloads content could be use to freeze tab state
 
-function updateOpenTabsCount() {
-    chrome.tabs.query({}, function(tabs) {
-        // 'tabs' is an array of open tabs
-        activeTabCounts = tabs.length;
-    });
-}
+
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     if (request.action === "toggleTracking") {
         isTrackingActive = request.isTracking;
@@ -28,9 +23,9 @@ chrome.tabs.onActivated.addListener(activeInfo => {
     chrome.tabs.get(activeInfo.tabId, function(tab) {
         if (!tab.url || tab.url.startsWith('chrome://')) return;
         activeTabs[activeInfo.tabId] = Date.now();
-        updateOpenTabsCount();
-
-        alert("onActivated Test");
+        
+        alert(activeTabCounts);
+       // alert("onActivated Test");
     });
 });
 
@@ -47,7 +42,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 chrome.tabs.onRemoved.addListener(tabId => {
     if (!isTrackingActive) return;
     logTime(tabId);
-    updateOpenTabsCount();
+   
 
     // activeTabCount--;
     alert("onRemoved Test")
@@ -107,11 +102,14 @@ function loadData(key, callback) {
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     if (request.action === "requestData") {
-        chrome.tabs.query({}, function(tabs) {
-            let openTabsCount = tabs.length; // Number of open tabs
-            let timeSpentInSeconds = timeSpent / 1000; // Convert timeSpent to seconds
+        chrome.tabs.query({}, function(tabs) { 
+            let openTabsCount = tabs.length; 
+            
+            let timeSpentInSeconds = timeSpent / 1000; 
             sendResponse({ timeSpent: timeSpentInSeconds, openTabs: openTabsCount });
         });
-        return true; // Keep the message channel open for the asynchronous response
+        return true; 
     }
 });
+
+
