@@ -3,12 +3,17 @@
 
 document.getElementById("Stop").addEventListener("click", function() {
     chrome.runtime.sendMessage({ action: "toggleTracking", isTracking: false });
+    alert("stopped");
 });
 
 
 document.getElementById("Start").addEventListener("click", function() {
-    chrome.runtime.sendMessage({ action: "toggleTracking", isTracking: true });
-});
+     chrome.runtime.sendMessage({ action: "toggleTracking", isTracking: true });
+     alert("tracking");
+ });
+
+
+
 
 
 document.getElementById("Account").addEventListener("click", function() {
