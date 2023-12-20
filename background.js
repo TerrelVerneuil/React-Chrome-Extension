@@ -11,21 +11,42 @@ let activeTabCounts = 0;
 
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-    if (request.action === "toggleTracking") {
+    if (request.action === "Toggle") {
         isTrackingActive = request.isTracking;
         sendResponse({ status: "Tracking status updated to " + isTrackingActive });
     }
-    return true;
+     else if (request.action === "requestData") {
+        chrome.tabs.query({}, function(tabs) { 
+            let openTabsCount = tabs.length; 
+            
+            let timeSpentInSeconds = timeSpent / 1000; 
+            sendResponse({ timeSpent: timeSpentInSeconds, openTabs: openTabsCount });
+            
+            
+            chrome.browserAction.setBadgeText({ text: openTabsCount.toString()});
+            chrome.browserAction.setBadgeBackgroundColor({ color: [255, 0, 0, 255] }); // Change color to force refresh
+            chrome.browserAction.setBadgeBackgroundColor({ color: [0, 0, 0, 0] }); // Set back to transparent
+        });
+        return true;
+    }
 });
 
+chrome.tabs.onCreated.addListener(updateBadgeText);
+chrome.tabs.onRemoved.addListener(updateBadgeText);
+
+function updateBadgeText() {
+    chrome.tabs.query({}, function(tabs) {
+        let openTabsCount = tabs.length;
+        chrome.browserAction.setBadgeText({ text: openTabsCount.toString() });
+    });
+}
 chrome.tabs.onActivated.addListener(activeInfo => {
     if (!isTrackingActive) return;
     chrome.tabs.get(activeInfo.tabId, function(tab) {
         if (!tab.url || tab.url.startsWith('chrome://')) return;
         activeTabs[activeInfo.tabId] = Date.now();
         
-        alert(activeTabCounts);
-       // alert("onActivated Test");
+        alert("onActivated Test");
     });
 });
 
@@ -33,7 +54,6 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     if (!isTrackingActive) return;
     if (changeInfo.url) {
         logTime(tabId);
-        // activeTabCount++;
         activeTabs[tabId] = Date.now();
         alert("onUpdated Test");
     }
@@ -42,9 +62,6 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 chrome.tabs.onRemoved.addListener(tabId => {
     if (!isTrackingActive) return;
     logTime(tabId);
-   
-
-    // activeTabCount--;
     alert("onRemoved Test")
 });
 
