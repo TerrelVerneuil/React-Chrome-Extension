@@ -14,6 +14,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     if (request.action === "Toggle") {
         isTrackingActive = request.isTracking;
         sendResponse({ status: "Tracking status updated to " + isTrackingActive });
+        
     }
      else if (request.action === "requestData") {
         chrome.tabs.query({}, function(tabs) { 
@@ -46,7 +47,7 @@ chrome.tabs.onActivated.addListener(activeInfo => {
         if (!tab.url || tab.url.startsWith('chrome://')) return;
         activeTabs[activeInfo.tabId] = Date.now();
         
-        alert("onActivated Test");
+       // alert("onActivated Test");
     });
 });
 

@@ -35,7 +35,6 @@ function updateUI() {
 }
 
 document.getElementById("Account").addEventListener("click", function() {
-    // Open a new tab with the specified URL when the button is clicked
     const newPageURL = chrome.runtime.getURL("Account.html");
     chrome.tabs.create({ url: newPageURL });
 });
