@@ -1,5 +1,6 @@
 var toggleButton = document.getElementById('Toggle');
 var statusDot = document.getElementById('statusDot');
+//stores if productivity mode is on or off
 var isProductive = localStorage.getItem('isProductive') === 'true' || false; // Load the state from localStorage
 
 updateUI();
@@ -10,7 +11,8 @@ toggleButton.addEventListener('click', function() {
     updateUI();
     chrome.runtime.sendMessage({ action: 'Toggle', isTracking: isProductive });
 });
-
+//goes to the toggle button specified in popup.html and 
+//toggles tracking on or off.
 document.getElementById("Toggle").addEventListener("click", function() {
     var toggleButtonText = toggleButton.textContent.trim().toLowerCase();
 
@@ -21,7 +23,7 @@ document.getElementById("Toggle").addEventListener("click", function() {
     }
 });
 
-
+//handlers for the status dot.
 function updateUI() {
     if (isProductive) {
         statusDot.style.backgroundColor = 'green';
@@ -33,7 +35,7 @@ function updateUI() {
         
     }
 }
-
+//generates the account html form
 document.getElementById("Account").addEventListener("click", function() {
     const newPageURL = chrome.runtime.getURL("Account.html");
     chrome.tabs.create({ url: newPageURL });

@@ -26,6 +26,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         return true;
     }
 });
+//on created updates the badge text.
 chrome.tabs.onCreated.addListener(updateBadgeText);
 chrome.tabs.onRemoved.addListener(updateBadgeText);
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
@@ -59,42 +60,53 @@ function updateTabStatus() {
         }
     }
 }
+//used to log the each individual tab time so we can store all 
+//urls or tabId's with a unique time attached.
 function logTime(tabId) {
     if (activeTabs[tabId]) {
-        tabtimeSpent = Date.now() - activeTabs[tabId];
-        timeSpent+= tabtimeSpent
-        saveTimeSpent(tabId, tabtimeSpent);
+        const tabTimeSpent = Date.now() - activeTabs[tabId];
+        timeSpent += tabTimeSpent;
+
+        for (const id in activeTabs) {
+            // Calculate time spent on each tab and update local storage
+            const identifier = "Tab-" + id;
+            const individualTabTime = Date.now() - activeTabs[id];
+            chrome.storage.local.get([identifier], function(result) {
+                const totalTime = result[identifier] ? result[identifier] + individualTabTime : individualTabTime;
+                chrome.storage.local.set({ [identifier]: totalTime });
+            });
+        }
+
         delete activeTabs[tabId];
     }
 }
-function saveTimeSpent(tabId, tabTimeSpent) {
-    let identifier = "Tab-" + tabId;
-    chrome.storage.local.get([identifier], function(result) {
-        let totalTime = result[identifier] ? result[identifier] + tabTimeSpent : tabTimeSpent;
-        chrome.storage.local.set({ [identifier]: totalTime });
-    });
-}
+//used when switching it gets the activated tab so 
+//logTime is used as long as a tab is activated.
 chrome.tabs.onActivated.addListener(activeInfo => {
     if (!isTrackingActive) return;
     updateTabStatus()
+    
     chrome.tabs.get(activeInfo.tabId, function(tab) {
         if (!tab.url || tab.url.startsWith('chrome://')) return;
+        logTime(activeInfo.tabId);
         activeTabs[activeInfo.tabId] = Date.now();
     });
 });
+//used when adding new tabs or updating state of a tab
+//s.a refreshing, creating new tab
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     if (!isTrackingActive) return;
     updateTabStatus();
     if (changeInfo.url) {
-        logTime(tabId);
+       
         activeTabs[tabId] = Date.now();
-       // alert("onUpdated Test");
+        alert("onUpdated Test");
     }
 });
 chrome.tabs.onRemoved.addListener(tabId => {
     if (!isTrackingActive) return;
     updateTabStatus();
-    logTime(tabId);
+    
     //alert("onRemoved Test")
 });
 //function clears data from local storage
@@ -115,6 +127,7 @@ function saveData(key, data) {
     });
 }
 
+//load data is in fact not going to be used currently.
 function loadData(key, callback) {
     chrome.storage.local.get([key], function(result) {
         if (result[key]) {
