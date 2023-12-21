@@ -1,21 +1,14 @@
-
-
-document.addEventListener("DOMContentLoaded", function () {
+function updateAccountContent() {
     chrome.runtime.sendMessage({ action: "requestData" }, function(response) {
-        updateContent(response);
+        document.getElementById('timeSpentOnTabs').textContent = `Time spent: ${response.timeSpent} seconds`;
+        document.getElementById('openTabsCount').textContent = `Open tabs: ${response.openTabs}`;
     });
+}
+
+chrome.tabs.onActivated.addListener(activeInfo => {
+    updateAccountContent();
 });
 
-function updateContent(data) {
-    
-    const timeSpentElement = document.getElementById('timeSpentOnTabs');
-    const openTabsElement = document.getElementById('openTabsCount');
-
-    if (timeSpentElement) {
-        timeSpentElement.textContent = `Time spent on tabs: ${data.timeSpent} seconds`;
-    }
-
-    if (openTabsElement) {
-        openTabsElement.textContent = `Open tabs count: ${data.openTabs}`;
-    }
-}
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+    updateAccountContent();
+});
