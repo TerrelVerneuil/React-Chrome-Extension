@@ -40,3 +40,24 @@ document.getElementById("Account").addEventListener("click", function() {
     const newPageURL = chrome.runtime.getURL("Account.html");
     chrome.tabs.create({ url: newPageURL });
 });
+
+// popup.js
+document.addEventListener("DOMContentLoaded", function() {
+    const mainPopup = document.getElementById("mainPopup");
+    const dynamicContent = document.getElementById("dynamicContent");
+
+    const goToAnotherPageButton = document.getElementById("goToAnotherPage");
+
+    goToAnotherPageButton.addEventListener("click", function() {
+        // Load the content of anotherPage.html dynamically
+        fetch(chrome.extension.getURL("pomodoro.html"))
+            .then(response => response.text())
+            .then(html => {
+                // Replace the entire content of the main popup
+                mainPopup.innerHTML = html;
+            });
+    });
+});
+
+
+

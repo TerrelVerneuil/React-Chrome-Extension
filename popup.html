@@ -1,16 +1,23 @@
+<!-- popup.html -->
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <title>Popup</title>
+  <!-- Include necessary meta tags, title, and styles -->
 </head>
 <body>
-
-  <div>
-    <div id="statusDot" style="height: 20px; width: 20px; border-radius: 50%; background-color: red;"></div>
-    <button id="Toggle">Start Productivity</button>
-    <button id="Account">Open Account Page</button>
+  <div id="mainPopup">
+    <div>
+      <div id="statusDot" style="height: 20px; width: 20px; border-radius: 50%; background-color: red;"></div>
+      <button id="Toggle">Start Productivity</button>
+      <button id="Account">Open Account Page</button>
+    </div>
+    <h1>Main Popup Page</h1>
+    <button id="goToAnotherPage">Go to Another Page</button>
+    <div id="dynamicContent">
+        <!-- Dynamic content will be loaded here -->
+    </div>
   </div>
-
   <script src="content.js"></script>
 </body>
 </html>
