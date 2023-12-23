@@ -2,7 +2,7 @@
 <html>
 <head>
   <title>Tutokan</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="pomodoro.css">
 </head>
 <body>
   <div class="pomodoro-timer">
@@ -14,18 +14,15 @@
     <button id="take-break-button">Take Break</button>
     <p id="pomodoro-count">Pomodoro 1 of 4</p>
   </div>
+  
+  <h1>To-Do</h1>
+  <ul id="todo-list"></ul>
+  <button id="add-todo-button">Add Task</button>
 
-  <div class="notes">
-    <h2>Notes</h2>
-    <textarea id="notes-textarea"></textarea>
-    <button id="add-notes-button">Add Notes</button>
-  </div>
+  <h1>To-Learn</h1>
+  <ul id="to-learn-list"></ul>
+  <button id="add-to-learn-button">Add Learning Item</button>
 
-  <div class="todos">
-    <h2>Todos</h2>
-    <ul id="todos-list"></ul>
-  </div>
-
-  <script src="script.js"></script>
+  <script src="pomodoro.js"></script>
 </body>
 </html>
