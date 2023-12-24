@@ -4,19 +4,22 @@
 <head>
   <title>Popup</title>
   <!-- Include necessary meta tags, title, and styles -->
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+  <div class="topBox">
+<button id="Account"><img src="./icons8-settings-30.png"></button>
+</div>
   <div id="mainPopup">
     <div>
-      <div id="statusDot" style="height: 20px; width: 20px; border-radius: 50%; background-color: red;"></div>
+      
+  <img src="./peep-17.svg" alt="Peep Image">
+      <div id="statusDot"></div>
       <button id="Toggle">Start Productivity</button>
-      <button id="Account">Open Account Page</button>
+      
     </div>
-    <h1>Main Popup Page</h1>
-    <button id="goToAnotherPage">Go to Another Page</button>
-    <div id="dynamicContent">
-        <!-- Dynamic content will be loaded here -->
-    </div>
+    <button id="goToAnotherPage" style="background-color: #D45735">Start the Pomodoro cycle</button>
   </div>
   <script src="content.js"></script>
 </body>
