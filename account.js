@@ -1,3 +1,94 @@
+const websiteCategories = {
+    "facebook.com": "Social Media",
+    "twitter.com": "Social Media",
+    "instagram.com": "Social Media",
+    "linkedin.com": "Professional Networking",
+    "youtube.com": "Entertainment",
+    "netflix.com": "Entertainment",
+    "hulu.com": "Entertainment",
+    "wikipedia.org": "Education",
+    "khanacademy.org": "Education",
+    "coursera.org": "Education",
+    "nytimes.com": "News",
+    "theguardian.com": "News",
+    "bbc.com": "News",
+    "amazon.com": "Shopping",
+    "ebay.com": "Shopping",
+    "walmart.com": "Shopping",
+    "stackoverflow.com": "Technology",
+    "github.com": "Technology",
+    "reddit.com": "Forums",
+    "quora.com": "Forums",
+    "tumblr.com": "Blogging",
+    "blogger.com": "Blogging",
+    "medium.com": "Blogging",
+    "spotify.com": "Music",
+    "soundcloud.com": "Music",
+    "pandora.com": "Music",
+    "gmail.com": "Email",
+    "outlook.com": "Email",
+    "yahoo.com": "Email",
+    "twitch.tv": "Streaming",
+    "zoom.us": "Communication",
+    "skype.com": "Communication",
+    "discord.com": "Communication",
+    "slack.com": "Work",
+    "asana.com": "Work",
+    "trello.com": "Work",
+    "dropbox.com": "Cloud Storage",
+    "drive.google.com": "Cloud Storage",
+    "onedrive.live.com": "Cloud Storage",
+    "evernote.com": "Productivity",
+    "notion.so": "Productivity",
+    "airtable.com": "Productivity",
+    "tripadvisor.com": "Travel",
+    "booking.com": "Travel",
+    "airbnb.com": "Travel",
+    "expedia.com": "Travel",
+    "udemy.com": "Education",
+    "edx.org": "Education",
+    "pluralsight.com": "Education",
+    "goodreads.com": "Reading",
+    "wired.com": "Technology News",
+    "techcrunch.com": "Technology News",
+    "mashable.com": "Technology News",
+    "espn.com": "Sports",
+    "nfl.com": "Sports",
+    "nba.com": "Sports",
+    "mlb.com": "Sports",
+    "fifa.com": "Sports",
+    "cnn.com": "News",
+    "foxnews.com": "News",
+    "aljazeera.com": "News",
+    "huffpost.com": "News",
+};
+
+
+
+function getCategoryForWebsite(domain) {
+    return websiteCategories[domain] || "Other";
+}
+
+function calculateTimePerCategory(callback) {
+    chrome.storage.local.get(null, function(items) {
+        let timePerCategory = {};
+
+        for (let key in items) {
+            if (key.startsWith("Domain-") && key.endsWith("-Time")) {
+                let domain = key.replace("Domain-", "").replace("-Time", "");
+                let category = getCategoryForWebsite(domain);
+
+                if (!timePerCategory[category]) {
+                    timePerCategory[category] = 0;
+                }
+                timePerCategory[category] += items[key];
+            }
+        }
+
+        callback(timePerCategory);
+    });
+}
+
 function updateAccountContent() {
     chrome.runtime.sendMessage({ action: "requestData" }, function(response) {
         document.getElementById('timeSpentOnTabs').textContent = `Time spent: ${response.timeSpent} seconds`;
@@ -5,17 +96,7 @@ function updateAccountContent() {
     });
 }
 
-// chrome.tabs.onActivated.addListener(activeInfo => {
-//     updateAccountContent();
-//     displayData();
-//     displayBlockedSites();
-// });
 
-// chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-//     updateAccountContent();
-//     displayData();
-//     displayBlockedSites();
-// });
 function displayTimePerDomain() {
     chrome.storage.local.get(null, function(items) {
         let displayString = '';
@@ -30,9 +111,6 @@ function displayTimePerDomain() {
 }
 
 
-
-
-
 function displayBlockedSites() {
         chrome.storage.local.get({ blockedSites: [] }, function(result) {
             let blockedSitesHtml = '';
@@ -42,9 +120,23 @@ function displayBlockedSites() {
             document.getElementById('blockedSites').innerHTML = blockedSitesHtml;
         });
     }
+
+    function displayTimePerCategory() {
+        calculateTimePerCategory(function(timePerCategory) {
+            let displayString = '';
+            for (let category in timePerCategory) {
+                const timeInSeconds = (timePerCategory[category] / 1000).toFixed(2);
+                displayString += `<p>${category}: ${timeInSeconds} seconds</p>`;
+            }
+            document.getElementById("categoryTimeData").innerHTML = displayString;
+        });
+    }
+    
+    
     
 document.addEventListener('DOMContentLoaded', function() {
         updateAccountContent();
+        displayTimePerCategory();
         displayTimePerDomain();
         displayBlockedSites();
 });
@@ -52,6 +144,7 @@ document.addEventListener('DOMContentLoaded', function() {
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         if (request.action === "updateAccountContent") {
             updateAccountContent();
+            displayTimePerCategory();
             displayTimePerDomain();
             displayBlockedSites();
         }
