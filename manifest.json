@@ -3,7 +3,7 @@
   "manifest_version": 2,
   "name": "React-Chrome-Extension",
   "version": "1.0",
-  "permissions": ["idle","tabs", "storage", "<all_urls>", "activeTab", "storage"],
+  "permissions": ["idle","tabs", "storage", "<all_urls>", "activeTab","contextMenus"],
   "background": {
     "scripts": ["background.js"],
     "persistent": false
