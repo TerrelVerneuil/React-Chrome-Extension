@@ -96,6 +96,7 @@ chrome.tabs.onActivated.addListener(activeInfo => {
 //used when adding new tabs or updating state of a tab
 //s.a refreshing, creating new tab
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+    let domain = getDomainFromURL(url);
     if (!isTrackingActive) return;
     updateTabStatus();
     if (changeInfo.url) {
@@ -110,7 +111,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
             chrome.storage.local.set({ [identifier]: totalTime });
         });
     }
-    if(blockedSites.includes(url)){
+    if(blockedSites.includes(domain)){
         checkBlockedList(tab.url);
     }
 });
@@ -204,10 +205,11 @@ chrome.storage.local.get({ blockedSites: [] }, function(result) {
 
   
 function checkBlockedList(url, tabId) {
+    let domain = getDomainFromURL(url);
     chrome.storage.local.get({blockedSites: []},function(result){
         const blockedSites = result.blockedSites;
     
-    if (blockedSites.includes(url)) {
+    if (blockedSites.includes(domain)) {
       chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
         const currentTabId = tabs[0].id;
         if (currentTabId === tabId) {
