@@ -55,7 +55,7 @@ function updateTabStatus() {
 
         if (inactiveTime >= 120000) { //120000 miliseconds
             // Suspend tabs that haven't been used for 2 minutes
-            hrome.tabs.discard(tabId, function (discardedTab) {
+            chrome.tabs.discard(tabId, function (discardedTab) {
                 const newTitle = "Paused: " + discardedTab.title;
                 chrome.tabs.update(tabId, { title: newTitle });
             });
@@ -85,13 +85,13 @@ chrome.tabs.onCreated.addListener(function(tab) {
 
 chrome.tabs.onActivated.addListener(activeInfo => {
     if (!isTrackingActive) return;
-    updateTabStatus()
-    
-    chrome.tabs.get(activeInfo.tabId, function(tab) {
-        if (!tab.url || tab.url.startsWith('chrome://')) return;
-        logTime(activeInfo.tabId);
-        activeTabs[activeInfo.tabId] = Date.now();
+    Object.keys(activeTabs).forEach(tabId => {
+        if (parseInt(tabId) !== activeInfo.tabId) {
+            logTime(parseInt(tabId));
+        }
     });
+    updateTabStatus();
+    activeTabs[activeInfo.tabId] = Date.now();
 });
 //used when adding new tabs or updating state of a tab
 //s.a refreshing, creating new tab
@@ -117,6 +117,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 });
 chrome.tabs.onRemoved.addListener(tabId => {
     if (!isTrackingActive) return;
+    logTime(tabId);
     updateTabStatus();
     
     //alert("onRemoved Test")
@@ -154,7 +155,7 @@ function getDomainFromURL(url) {
     const urlObj = new URL(url);
     return urlObj.hostname.replace('www.', '');
 }
-function addToBlockList(url){
+async function addToBlockList(url){
     let domainName = getDomainFromURL(url);
     chrome.storage.local.get({ blockedSites: [] }, function (result) {
         const blockedSites = result.blockedSites;
@@ -164,6 +165,13 @@ function addToBlockList(url){
         });
       });
 }
+async function initializeExtensionState() {
+    let result = await chrome.storage.local.get({ blockedSites: [] });
+    blockedSites = result.blockedSites;
+    // Initialize other states if necessary
+}
+
+initializeExtensionState();
 chrome.runtime.onInstalled.addListener(function(){
     chrome.contextMenus.create({
         title: "Add to Block List",
