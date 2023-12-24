@@ -66,27 +66,23 @@ function updateTabStatus() {
 //urls or tabId's with a unique time attached.
 function logTime(tabId) {
     if (activeTabs[tabId]) {
-        const tabTimeSpent = Date.now() - activeTabs[tabId];
-        timeSpent += tabTimeSpent;
-        chrome.tabs.get(tabId, function (tab) {
-            const tabTitle = tab.title || "Untitled"; // Use tab title or "Untitled" if not available
-
-            for (const id in activeTabs) {
-                const identifier = "Tab-" + id + "-Title"; // Include "Title" in the identifier
-                const individualTabTime = Date.now() - activeTabs[id];
-
-                chrome.storage.local.get([identifier], function (result) {
-                    const totalTime = result[identifier] ? result[identifier] + individualTabTime : individualTabTime;
-                    chrome.storage.local.set({ [identifier]: totalTime });
-                });
-            }
-        });
-
-        delete activeTabs[tabId];
+      const tabTimeSpent = Date.now() - activeTabs[tabId];
+      timeSpent += tabTimeSpent;
+      const identifier = "Tab-" + tabId + "-Time";
+      chrome.storage.local.get([identifier], function(result) {
+        const totalTime = result[identifier] ? result[identifier] + tabTimeSpent : tabTimeSpent;
+        chrome.storage.local.set({ [identifier]: totalTime });
+      });
+  
+      delete activeTabs[tabId];
     }
-}
+  }
+chrome.tabs.onCreated.addListener(function(tab) {
+    checkBlockList(tab.url);
+  });
 //used when switching it gets the activated tab so 
 //logTime is used as long as a tab is activated.
+
 chrome.tabs.onActivated.addListener(activeInfo => {
     if (!isTrackingActive) return;
     updateTabStatus()
@@ -113,6 +109,9 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
             const totalTime = result[identifier] ? result[identifier] + titleTimeSpent : titleTimeSpent;
             chrome.storage.local.set({ [identifier]: totalTime });
         });
+    }
+    if(blockedSites.includes(url)){
+        checkBlockedList(tab.url);
     }
 });
 chrome.tabs.onRemoved.addListener(tabId => {
@@ -175,7 +174,47 @@ chrome.contextMenus.onClicked.addListener(function(info, tab){
     }
 })
 
+let blockedSites = [];
+//this is where we load the blocked sites from local storage
+chrome.storage.local.get({ blockedSites: [] }, function(result) {
+    blockedSites = result.blockedSites;
+  
+    // Call the function to check the blocked list when the data is loaded
+    chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+      if (!isTrackingActive) return;
+      updateTabStatus();
+      if (changeInfo.title) {
+        const identifier = "Tab-" + tabId + "-Title";
+        const titleTimeSpent = Date.now() - activeTabs[tabId];
+  
+        chrome.storage.local.get([identifier], function(result) {
+          const totalTime = result[identifier] ? result[identifier] + titleTimeSpent : titleTimeSpent;
+          chrome.storage.local.set({ [identifier]: totalTime });
+        });
+      }
+  
+      checkBlockedList(tab.url, tabId);
+    });
+  });
 
-
+function checkBlockedList(url, tabId) {
+    chrome.storage.local.get({blockedSites: []},function(result){
+        const blockedSites = result.blockedSites;
+    
+    if (blockedSites.includes(url)) {
+      chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
+        const currentTabId = tabs[0].id;
+        if (currentTabId === tabId) {
+          // If the blocked site is the current tab, inject content script to display a message
+          chrome.tabs.executeScript(currentTabId, {
+            code: `document.body.innerHTML = '<h1>This website is blocked.</h1>';`
+          });
+        } else {
+          chrome.tabs.remove(tabId);
+        }
+      });
+    }
+});
+  }
 
 
