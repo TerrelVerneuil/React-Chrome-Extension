@@ -65,18 +65,28 @@ function updateTabStatus() {
 //used to log the each individual tab time so we can store all 
 //urls or tabId's with a unique time attached.
 function logTime(tabId) {
-    if (activeTabs[tabId]) {
-      const tabTimeSpent = Date.now() - activeTabs[tabId];
-      timeSpent += tabTimeSpent;
-      const identifier = "Tab-" + tabId + "-Time";
-      chrome.storage.local.get([identifier], function(result) {
-        const totalTime = result[identifier] ? result[identifier] + tabTimeSpent : tabTimeSpent;
-        chrome.storage.local.set({ [identifier]: totalTime });
-      });
-  
-      delete activeTabs[tabId];
-    }
-  }
+    chrome.tabs.get(tabId, function(tab) {
+        if (!tab || !tab.url) return;
+
+        let domainName = getDomainFromURL(tab.url);
+        const identifier = "Domain-" + domainName + "-Time";
+
+        if (activeTabs[tabId]) {
+            const tabTimeSpent = Date.now() - activeTabs[tabId];
+            timeSpent += tabTimeSpent;
+
+            chrome.storage.local.get([identifier], function(result) {
+                const totalTime = result[identifier] ? result[identifier] + tabTimeSpent : tabTimeSpent;
+                chrome.storage.local.set({ [identifier]: totalTime });
+            });
+
+            delete activeTabs[tabId];
+        }
+    });
+}
+
+
+
 chrome.tabs.onCreated.addListener(function(tab) {
     checkBlockList(tab.url);
   });
@@ -101,6 +111,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     let domain = getDomainFromURL(url);
     if (!isTrackingActive) return;
     updateTabStatus();
+    
     if (changeInfo.url) {
         activeTabs[tabId] = Date.now();
     }
@@ -228,12 +239,9 @@ function updateContextMenu(tabId) {
     });
 }
 
-
-
 async function initializeExtensionState() {
     let result = await chrome.storage.local.get({ blockedSites: [] });
     blockedSites = result.blockedSites;
-    // Initialize other states if necessary
 }
 
 initializeExtensionState();
