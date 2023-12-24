@@ -149,12 +149,17 @@ function loadData(key, callback) {
         }
     });
 }
+function getDomainFromURL(url) {
+    const urlObj = new URL(url);
+    return urlObj.hostname.replace('www.', '');
+}
 function addToBlockList(url){
+    let domainName = getDomainFromURL(url);
     chrome.storage.local.get({ blockedSites: [] }, function (result) {
         const blockedSites = result.blockedSites;
-        blockedSites.push(url);
+        blockedSites.push(domainName);
         chrome.storage.local.set({ blockedSites: blockedSites }, function () {
-          console.log(url + " added to the block list");
+          console.log(domainName+ " added to the block list");
         });
       });
 }
@@ -197,6 +202,7 @@ chrome.storage.local.get({ blockedSites: [] }, function(result) {
     });
   });
 
+  
 function checkBlockedList(url, tabId) {
     chrome.storage.local.get({blockedSites: []},function(result){
         const blockedSites = result.blockedSites;
