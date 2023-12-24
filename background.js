@@ -8,7 +8,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     if (request.action === "Toggle") {
         isTrackingActive = request.isTracking;
         sendResponse({ status: "Tracking status updated to " + isTrackingActive });
-        
+        updateContextMenu(tabId);
     }
      else if (request.action === "requestData") {
         updateTabStatus();
@@ -55,10 +55,10 @@ function updateTabStatus() {
 
         if (inactiveTime >= 120000) { //120000 miliseconds
             // Suspend tabs that haven't been used for 2 minutes
-            chrome.tabs.discard(tabId, function (discardedTab) {
-                const newTitle = "Paused: " + discardedTab.title;
-                chrome.tabs.update(tabId, { title: newTitle });
-            });
+            // chrome.tabs.discard(tabId, function (discardedTab) {
+            //     const newTitle = "Paused: " + discardedTab.title;
+            //     chrome.tabs.update(tabId, { title: newTitle });
+            // });
         }
     }
 }
@@ -90,8 +90,10 @@ chrome.tabs.onActivated.addListener(activeInfo => {
             logTime(parseInt(tabId));
         }
     });
+    
     updateTabStatus();
     activeTabs[activeInfo.tabId] = Date.now();
+    updateContextMenu(activeInfo.tabId);
 });
 //used when adding new tabs or updating state of a tab
 //s.a refreshing, creating new tab
@@ -113,6 +115,9 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     }
     if(blockedSites.includes(domain)){
         checkBlockedList(tab.url);
+    }
+    if (changeInfo.status === 'complete') {
+        updateContextMenu(tabId);
     }
 });
 chrome.tabs.onRemoved.addListener(tabId => {
@@ -139,7 +144,6 @@ function saveData(key, data) {
         console.log('Data saved for key:', key);
     });
 }
-
 //load data is in fact not going to be used currently.
 function loadData(key, callback) {
     chrome.storage.local.get([key], function(result) {
@@ -155,7 +159,7 @@ function getDomainFromURL(url) {
     const urlObj = new URL(url);
     return urlObj.hostname.replace('www.', '');
 }
-async function addToBlockList(url){
+function addToBlockList(url){
     let domainName = getDomainFromURL(url);
     chrome.storage.local.get({ blockedSites: [] }, function (result) {
         const blockedSites = result.blockedSites;
@@ -164,7 +168,68 @@ async function addToBlockList(url){
           console.log(domainName+ " added to the block list");
         });
       });
+    
+    chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
+        if (tabs[0]) {
+            updateContextMenu(tabs[0].id);
+        }
+    });
 }
+function RemoveFromBlockList(url){
+    let domainName = getDomainFromURL(url);
+    chrome.storage.local.get({ blockedSites: [] }, function (result) {
+        const blockedSites = result.blockedSites;
+        const index = blockedSites.indexOf(domainName);
+        if(index > -1){
+            blockedSites.splice(index, 1);
+            chrome.storage.local.set({ blockedSites: blockedSites }, function () {
+              console.log(domainName+ " Removed from the block list");
+            });
+        }
+        
+       
+      });
+      chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
+        if (tabs[0]) {
+            updateContextMenu(tabs[0].id);
+        }
+    });
+}
+chrome.runtime.onInstalled.addListener(() => {
+    chrome.contextMenus.create({
+        title: "Check Site Status", // Default title
+        contexts: ["all"],
+        id: "toggleBlockWebsite"
+    });
+});
+
+chrome.runtime.onStartup.addListener(() => {
+    chrome.contextMenus.create({
+        title: "Check Site Status", // Default title
+        contexts: ["all"],
+        id: "toggleBlockWebsite"
+    });
+});
+function updateContextMenu(tabId) {
+    chrome.tabs.get(tabId, function(tab) {
+        if (!tab || !tab.url || tab.url.startsWith('chrome://')) return;
+
+        let domainName = getDomainFromURL(tab.url);
+        chrome.storage.local.get({ blockedSites: [] }, function(result) {
+            let blockedSites = result.blockedSites;
+            let isBlocked = blockedSites.includes(domainName);
+
+            // Update the context menu item
+            chrome.contextMenus.update("toggleBlockWebsite", {
+                title: isBlocked ? "Remove from Block List" : "Add to Block List",
+                onclick: isBlocked ? () => RemoveFromBlockList(tab.url) : () => addToBlockList(tab.url)
+            });
+        });
+    });
+}
+
+
+
 async function initializeExtensionState() {
     let result = await chrome.storage.local.get({ blockedSites: [] });
     blockedSites = result.blockedSites;
@@ -172,21 +237,19 @@ async function initializeExtensionState() {
 }
 
 initializeExtensionState();
-chrome.runtime.onInstalled.addListener(function(){
-    chrome.contextMenus.create({
-        title: "Add to Block List",
-        contexts: ["all"],
-        id: "blockWebsite"
-      });
-})
-chrome.contextMenus.onClicked.addListener(function(info, tab){
-    if(info.menuItemId === "blockWebsite"){
-        chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-            const url = tabs[0].url;
-            addToBlockList(url);
-          });
+chrome.contextMenus.onClicked.addListener(function(info, tab) {
+    if (info.menuItemId === "toggleBlockWebsite") {
+        let domainName = getDomainFromURL(tab.url);
+        chrome.storage.local.get({ blockedSites: [] }, function(result) {
+            let blockedSites = result.blockedSites;
+            if (blockedSites.includes(domainName)) {
+                RemoveFromBlockList(tab.url); // Unblock the site
+            } else {
+                addToBlockList(tab.url); // Block the site
+            }
+        });
     }
-})
+});
 
 let blockedSites = [];
 //this is where we load the blocked sites from local storage
@@ -232,5 +295,4 @@ function checkBlockedList(url, tabId) {
     }
 });
   }
-
 
