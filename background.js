@@ -55,7 +55,9 @@ function updateTabStatus() {
 
         if (inactiveTime >= 120000) { //120000 miliseconds
             // Suspend tabs that haven't been used for 2 minutes
-            chrome.tabs.discard(parseInt(tabId), function (discardedTab) {
+            hrome.tabs.discard(tabId, function (discardedTab) {
+                const newTitle = "Paused: " + discardedTab.title;
+                chrome.tabs.update(tabId, { title: newTitle });
             });
         }
     }
@@ -66,16 +68,19 @@ function logTime(tabId) {
     if (activeTabs[tabId]) {
         const tabTimeSpent = Date.now() - activeTabs[tabId];
         timeSpent += tabTimeSpent;
+        chrome.tabs.get(tabId, function (tab) {
+            const tabTitle = tab.title || "Untitled"; // Use tab title or "Untitled" if not available
 
-        for (const id in activeTabs) {
-            // Calculate time spent on each tab and update local storage
-            const identifier = "Tab-" + id;
-            const individualTabTime = Date.now() - activeTabs[id];
-            chrome.storage.local.get([identifier], function(result) {
-                const totalTime = result[identifier] ? result[identifier] + individualTabTime : individualTabTime;
-                chrome.storage.local.set({ [identifier]: totalTime });
-            });
-        }
+            for (const id in activeTabs) {
+                const identifier = "Tab-" + id + "-Title"; // Include "Title" in the identifier
+                const individualTabTime = Date.now() - activeTabs[id];
+
+                chrome.storage.local.get([identifier], function (result) {
+                    const totalTime = result[identifier] ? result[identifier] + individualTabTime : individualTabTime;
+                    chrome.storage.local.set({ [identifier]: totalTime });
+                });
+            }
+        });
 
         delete activeTabs[tabId];
     }
@@ -98,9 +103,16 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     if (!isTrackingActive) return;
     updateTabStatus();
     if (changeInfo.url) {
-       
         activeTabs[tabId] = Date.now();
-        alert("onUpdated Test");
+    }
+    if (changeInfo.title) {
+        const identifier = "Tab-" + tabId + "-Title";
+        const titleTimeSpent = Date.now() - activeTabs[tabId];
+
+        chrome.storage.local.get([identifier], function (result) {
+            const totalTime = result[identifier] ? result[identifier] + titleTimeSpent : titleTimeSpent;
+            chrome.storage.local.set({ [identifier]: totalTime });
+        });
     }
 });
 chrome.tabs.onRemoved.addListener(tabId => {
@@ -138,7 +150,30 @@ function loadData(key, callback) {
         }
     });
 }
-
+function addToBlockList(url){
+    chrome.storage.local.get({ blockedSites: [] }, function (result) {
+        const blockedSites = result.blockedSites;
+        blockedSites.push(url);
+        chrome.storage.local.set({ blockedSites: blockedSites }, function () {
+          console.log(url + " added to the block list");
+        });
+      });
+}
+chrome.runtime.onInstalled.addListener(function(){
+    chrome.contextMenus.create({
+        title: "Add to Block List",
+        contexts: ["all"],
+        id: "blockWebsite"
+      });
+})
+chrome.contextMenus.onClicked.addListener(function(info, tab){
+    if(info.menuItemId === "blockWebsite"){
+        chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+            const url = tabs[0].url;
+            addToBlockList(url);
+          });
+    }
+})
 
 
 
