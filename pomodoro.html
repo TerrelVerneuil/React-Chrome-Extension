@@ -3,25 +3,38 @@
 <head>
   <title>Tutokan</title>
   <link rel="stylesheet" href="pomodoro.css">
+
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      text-align: center;
+      margin: 10px;
+    }
+
+    #timer {
+      font-size: 36px;
+      margin-bottom: 20px;
+      cursor: pointer;
+    }
+
+    button {
+      font-size: 18px;
+      padding: 10px 20px;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
-  <div class="pomodoro-timer">
-    <h1>Tutokan</h1>
-    <p>Ready?</p>
-    <button id="start-pause-button">Start Focusing</button>
-    <p id="timer">25:00</p>
-    <button id="reset-button">Reset</button>
-    <button id="take-break-button">Take Break</button>
-    <p id="pomodoro-count">Pomodoro 1 of 4</p>
+  <div>
+    <div id="timer" onclick="editTimer()" contenteditable="true">
+      25:00
+    </div>
   </div>
   
-  <h1>To-Do</h1>
-  <ul id="todo-list"></ul>
-  <button id="add-todo-button">Add Task</button>
-
-  <h1>To-Learn</h1>
-  <ul id="to-learn-list"></ul>
-  <button id="add-to-learn-button">Add Learning Item</button>
+  <button id="startButton" onclick="startTimer()">Start</button>
+  <button style="display: none;" id="pauseButton" onclick="pauseTimer()">Pause</button>
+  <button id="resetButton" onclick="resetTimer()">Reset</button>
 
   <script src="pomodoro.js"></script>
 </body>
