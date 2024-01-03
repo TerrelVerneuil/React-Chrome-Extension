@@ -47,7 +47,6 @@ function updateBadgeText() {
         chrome.browserAction.setBadgeText({ text: openTabsCount.toString() });
     });
 }
-
 function updateTabStatus() {
     const currentTime = Date.now();
     for (const tabId in activeTabs) {
@@ -209,7 +208,7 @@ function RemoveFromBlockList(url){
 }
 chrome.runtime.onInstalled.addListener(() => {
     chrome.contextMenus.create({
-        title: "Add To Block List", // Default title
+        title: "Check Site Status", // Default title
         contexts: ["all"],
         id: "toggleBlockWebsite"
     });
@@ -217,7 +216,7 @@ chrome.runtime.onInstalled.addListener(() => {
 
 chrome.runtime.onStartup.addListener(() => {
     chrome.contextMenus.create({
-        title: "Add To Block List", // Default title
+        title: "Check Site Status", // Default title
         contexts: ["all"],
         id: "toggleBlockWebsite"
     });
@@ -304,9 +303,9 @@ function checkBlockedList(url, tabId) {
     }
 });
   }
-const app = firebase.initializeApp(config);
+  const app = firebase.initializeApp(config);
 const auth = app.auth();
-const signInWithPopup = () => { //this is used in popup html
+const signInWithPopup = () => {
   const provider = new firebase.auth.GoogleAuthProvider();
   return auth.signInWithPopup(provider).catch((error) => {
     console.log(error);
