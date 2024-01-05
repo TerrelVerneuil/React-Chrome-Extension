@@ -1,41 +1,34 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Tutokan</title>
-  <link rel="stylesheet" href="pomodoro.css">
-
-  <style>
-    body {
-      font-family: 'Arial', sans-serif;
-      text-align: center;
-      margin: 10px;
-    }
-
-    #timer {
-      font-size: 36px;
-      margin-bottom: 20px;
-      cursor: pointer;
-    }
-
-    button {
-      font-size: 18px;
-      padding: 10px 20px;
-      margin-top: 10px;
-      cursor: pointer;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pomodoro Timer</title>
+    <link rel="stylesheet" href="pomodoro.css">
+    
 </head>
 <body>
-  <div>
-    <div id="timer" onclick="editTimer()" contenteditable="true">
-      25:00
-    </div>
-  </div>
   
-  <button id="startButton" onclick="startTimer()">Start</button>
-  <button style="display: none;" id="pauseButton" onclick="pauseTimer()">Pause</button>
-  <button id="resetButton" onclick="resetTimer()">Reset</button>
+    <div id="pomodoro-app">
+        <div id="timer-container">
+            <div id="timerDisplay">25:00</div>
+            <button id="startingButton">Start Focusing</button>
+            
+            <button id="resetButton" style="display: none;">Reset</button>
+        </div>
+        
+      
+        <div id="notes-container">
+            <div id="notesHeader">
+                <h2>Notes</h2>
+                <button id="addNoteButton">Add Note</button>
+            </div>
+            <ul id="notesList">
+                
+            </ul>
+        </div>
+    </div>
 
-  <script src="pomodoro.js"></script>
+    <script src="pomodoro.js" defer></script>
 </body>
 </html>
