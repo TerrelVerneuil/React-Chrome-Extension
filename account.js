@@ -98,20 +98,27 @@ function updateAccountContent() {
 function displayTimePerDomain() {
     chrome.storage.local.get(null, function(items) {
         let displayString = '';
-        let totalTime = 0; // Initialize total time
+        let totalTimeInSeconds = 0;
 
         for (let key in items) {
             if (key.startsWith("Domain-") && key.endsWith("-Time")) {
-                const timeInSeconds = items[key] / 1000; // Convert milliseconds to seconds
-                totalTime += timeInSeconds; // Accumulate total time
-                displayString += `<p>${key}: ${timeInSeconds.toFixed(2)} seconds</p>`; // Append domain time
+                const timeInSeconds = items[key] / 1000;
+                totalTimeInSeconds += timeInSeconds;
+                displayString += `<p>${key}: ${formatTime(timeInSeconds)}</p>`;
             }
         }
 
-        // Update total time display at the top of the page
-        document.getElementById('totalTimeDisplay').textContent = `Total Time: ${totalTime.toFixed(2)} seconds`;
+        const formattedTotalTime = formatTime(totalTimeInSeconds);
+        document.getElementById('totalTimeDisplay').textContent = `Total Time: ${formattedTotalTime}`;
         document.getElementById("timeData").innerHTML = displayString;
     });
+}
+
+function formatTime(seconds) {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const remainingSeconds = Math.floor(seconds % 60);
+    return `${hours}h ${minutes}m ${remainingSeconds}s`;
 }
 
 
