@@ -61,6 +61,7 @@ const websiteCategories = {
     "foxnews.com": "News",
     "aljazeera.com": "News",
     "huffpost.com": "News",
+    "chat.openai.com":"Technology"
 };
 
 
@@ -90,25 +91,30 @@ function calculateTimePerCategory(callback) {
 }
 
 function updateAccountContent() {
-    chrome.runtime.sendMessage({ action: "requestData" }, function(response) {
-        document.getElementById('timeSpentOnTabs').textContent = `Time spent: ${response.timeSpent} seconds`;
-        document.getElementById('openTabsCount').textContent = `Open tabs: ${response.openTabs}`;
-    });
+   
 }
 
 
 function displayTimePerDomain() {
     chrome.storage.local.get(null, function(items) {
         let displayString = '';
+        let totalTime = 0; // Initialize total time
+
         for (let key in items) {
             if (key.startsWith("Domain-") && key.endsWith("-Time")) {
                 const timeInSeconds = items[key] / 1000; // Convert milliseconds to seconds
-                displayString += `<p>${key}: ${timeInSeconds.toFixed(2)} seconds</p>`; // Fixed to 2 decimal places
+                totalTime += timeInSeconds; // Accumulate total time
+                displayString += `<p>${key}: ${timeInSeconds.toFixed(2)} seconds</p>`; // Append domain time
             }
         }
+
+        // Update total time display at the top of the page
+        document.getElementById('totalTimeDisplay').textContent = `Total Time: ${totalTime.toFixed(2)} seconds`;
         document.getElementById("timeData").innerHTML = displayString;
     });
 }
+
+
 
 
 function displayBlockedSites() {
