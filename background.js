@@ -4,6 +4,7 @@ let timeSpent = 0;
 // let activeTabCount = 0;
 let activeTabCounts = 0;
 let visitedSites = {};
+let blockedSites = [];
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     if (request.action === "Toggle") {
         isTrackingActive = request.isTracking;
@@ -15,31 +16,20 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         chrome.tabs.query({}, function(tabs) { 
             let openTabsCount = tabs.length; 
             
-            let timeSpentInSeconds = timeSpent / 1000; 
-            sendResponse({ timeSpent: timeSpentInSeconds, openTabs: openTabsCount });
-            
-            
             chrome.browserAction.setBadgeText({ text: openTabsCount.toString()});
             chrome.browserAction.setBadgeBackgroundColor({ color: [255, 0, 0, 255] }); // Change color to force refresh
             chrome.browserAction.setBadgeBackgroundColor({ color: [0, 0, 0, 0] }); // Set back to transparent
-        });
+       
+          
         return true;
-    }
+        }
+    
+    )};
 });
 //on created updates the badge text.
 chrome.tabs.onCreated.addListener(updateBadgeText);
 chrome.tabs.onRemoved.addListener(updateBadgeText);
-chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-    if (request.action === "requestData") {
-        chrome.tabs.query({}, function(tabs) { 
-            let openTabsCount = tabs.length; 
-            
-            let timeSpentInSeconds = timeSpent / 1000; 
-            sendResponse({ timeSpent: timeSpentInSeconds, openTabs: openTabsCount });
-        });
-        return true; 
-    }
-});
+
 //this is function is used for the count on the number of tabs
 function updateBadgeText() {
     chrome.tabs.query({}, function(tabs) {
@@ -84,15 +74,11 @@ function logTime(tabId) {
         }
     });
 }
-
-
-
 chrome.tabs.onCreated.addListener(function(tab) {
-    checkBlockList(tab.url);
+    checkBlockedList(tab.url);
   });
 //used when switching it gets the activated tab so 
 //logTime is used as long as a tab is activated.
-
 chrome.tabs.onActivated.addListener(activeInfo => {
     if (!isTrackingActive) return;
     Object.keys(activeTabs).forEach(tabId => {
@@ -108,8 +94,8 @@ chrome.tabs.onActivated.addListener(activeInfo => {
 //used when adding new tabs or updating state of a tab
 //s.a refreshing, creating new tab
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-    let domain = getDomainFromURL(url);
-    if (!isTrackingActive) return;
+    let domain = getDomainFromURL(tab.url);
+    // if (!isTrackingActive) return;
     updateTabStatus();
     
     if (changeInfo.url) {
@@ -174,11 +160,21 @@ function addToBlockList(url){
     let domainName = getDomainFromURL(url);
     chrome.storage.local.get({ blockedSites: [] }, function (result) {
         const blockedSites = result.blockedSites;
-        blockedSites.push(domainName);
-        chrome.storage.local.set({ blockedSites: blockedSites }, function () {
-          console.log(domainName+ " added to the block list");
-        });
-      });
+        
+        if (!blockedSites.includes(domainName)) {
+            blockedSites.push(domainName);
+            chrome.storage.local.set({ blockedSites: blockedSites }, function () {
+                console.log(domainName + " added to the block list");
+                chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+                    if (tabs[0]) {
+                        chrome.tabs.reload(tabs[0].id);
+                    }
+                });
+            });
+        } else {
+            console.log(domainName + " is already in the block list");
+        }
+    });
     
     chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
         if (tabs[0]) {
@@ -195,6 +191,11 @@ function RemoveFromBlockList(url){
             blockedSites.splice(index, 1);
             chrome.storage.local.set({ blockedSites: blockedSites }, function () {
               console.log(domainName+ " Removed from the block list");
+              chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+                if (tabs[0]) {
+                    chrome.tabs.reload(tabs[0].id);
+                }
+            });
             });
         }
         
@@ -208,7 +209,7 @@ function RemoveFromBlockList(url){
 }
 chrome.runtime.onInstalled.addListener(() => {
     chrome.contextMenus.create({
-        title: "Check Site Status", // Default title
+        title: "Add To Block List", // Default title
         contexts: ["all"],
         id: "toggleBlockWebsite"
     });
@@ -216,7 +217,7 @@ chrome.runtime.onInstalled.addListener(() => {
 
 chrome.runtime.onStartup.addListener(() => {
     chrome.contextMenus.create({
-        title: "Check Site Status", // Default title
+        title: "Add To Block List", // Default title
         contexts: ["all"],
         id: "toggleBlockWebsite"
     });
@@ -245,6 +246,7 @@ async function initializeExtensionState() {
 }
 
 initializeExtensionState();
+
 chrome.contextMenus.onClicked.addListener(function(info, tab) {
     if (info.menuItemId === "toggleBlockWebsite") {
         let domainName = getDomainFromURL(tab.url);
@@ -259,7 +261,7 @@ chrome.contextMenus.onClicked.addListener(function(info, tab) {
     }
 });
 
-let blockedSites = [];
+
 //this is where we load the blocked sites from local storage
 chrome.storage.local.get({ blockedSites: [] }, function(result) {
     blockedSites = result.blockedSites;
@@ -294,8 +296,9 @@ function checkBlockedList(url, tabId) {
         if (currentTabId === tabId) {
           // If the blocked site is the current tab, inject content script to display a message
           chrome.tabs.executeScript(currentTabId, {
-            code: `document.body.innerHTML = '<h1>This website is blocked.</h1>';`
-          });
+            code: `document.body.innerHTML = '<h1 style="color: red; text-align: center; margin-top: 20%;">This website is blocked.</h1>';`
+        });
+        
         } else {
           chrome.tabs.remove(tabId);
         }
@@ -303,13 +306,6 @@ function checkBlockedList(url, tabId) {
     }
 });
   }
-  const app = firebase.initializeApp(config);
-const auth = app.auth();
-const signInWithPopup = () => {
-  const provider = new firebase.auth.GoogleAuthProvider();
-  return auth.signInWithPopup(provider).catch((error) => {
-    console.log(error);
-  });
-};
+  
 
 
