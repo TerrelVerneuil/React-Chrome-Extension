@@ -1,6 +1,9 @@
+<!-- popup.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js"></script>
   <title>Popup</title>
   <!-- Include necessary meta tags, title, and styles -->
   <link rel="stylesheet" href="style.css">
@@ -10,16 +13,21 @@
   <div class="topBox">
 <button id="Account"><img src="./icons8-settings-30.png"></button>
 </div>
-  <div id="mainPopup">
+
+<div id="mainPopup">
     <div>
-      
   <img src="./peep-17.svg" alt="Peep Image">
       <div id="statusDot"></div>
       <button id="Toggle">Start Productivity</button>
-      
+      <button id="goToAnotherPage" style="background-color: #D45735">Start the Pomodoro cycle</button>
+      <button id="SignInButton" style="background-color: #D45735;">Sign In</button>
     </div>
-    <button id="goToAnotherPage" style="background-color: #D45735">Start the Pomodoro cycle</button>
-  </div>
+    
+
+    
+  
+
+</div>
   <script src="content.js"></script>
 </body>
 </html>

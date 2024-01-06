@@ -16,15 +16,21 @@ body{
     cursor: pointer;
 
 }
-
-#Account{
-
+#SignInButton{
+    margin: 15px;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
 
 }
 
 
+
 #topBox {
-    background-color: #888888; /* Set your preferred grey color */
+    background-color: #888828; /* Set your preferred grey color */
     height: 100px; /* Set the height of the box */
     width: 70%; /* Set the width of the box */
     margin: 0 auto; /* Center the box horizontally */
@@ -35,7 +41,18 @@ body{
     width: 20px; /* Set the width of the PNG */
     height: auto; 
 }
+#Account{
+    
+        background-color: #ff6347;
+        color: #fff;
+        border: none;
+        padding: 10px 20px;
+        margin: 0 10px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1em;
 
+}
 #goToAnotherPage{
     background-color: tomato; /* Visually appealing color */
     color: white;

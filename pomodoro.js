@@ -33,14 +33,15 @@ function pauseTimer() {
 
 }
 function updateTimer() {
-    if (currentSessionTime > 0) {
-        currentSessionTime--;
-        displayTime(currentSessionTime);
-    } else {
-        pauseTimer();
-       
-    }
+  if (currentSessionTime > 0) {
+      currentSessionTime--;
+      displayTime(currentSessionTime);
+      saveTimerState(); // Save state after every decrement
+  } else {
+      pauseTimer();
+  }
 }
+
 function resetTimer() {
   clearInterval(timerInterval);
   isTimerRunning = false;

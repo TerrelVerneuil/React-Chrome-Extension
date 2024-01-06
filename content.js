@@ -14,6 +14,7 @@ toggleButton.addEventListener('click', function() {
     localStorage.setItem('isProductive', isProductive);
     updateUI();
     chrome.runtime.sendMessage({ action: 'Toggle', isTracking: isProductive });
+    
 });
 document.getElementById("SignInButton").addEventListener("click", function() {
     //for testing the current tab created is local host
@@ -25,7 +26,9 @@ document.getElementById("Toggle").addEventListener("click", function() {
 
     if (toggleButtonText === 'start productivity') {
         chrome.runtime.sendMessage({ action: "toggleTracking", isTracking: true });
+        
     } else if (toggleButtonText === 'stop productivity') {
+        
         chrome.runtime.sendMessage({ action: "toggleTracking", isTracking: false });
     }
 });
@@ -59,14 +62,27 @@ document.addEventListener("DOMContentLoaded", function() {
     const goToAnotherPageButton = document.getElementById("goToAnotherPage");
 
     goToAnotherPageButton.addEventListener("click", function() {
-        // Load the content of anotherPage.html dynamically
         fetch(chrome.extension.getURL("pomodoro.html"))
             .then(response => response.text())
             .then(html => {
-                // Replace the entire content of the main popup
                 mainPopup.innerHTML = html;
+                // Find script tags
+                const scripts = mainPopup.getElementsByTagName("script");
+                for (let script of scripts) {
+                    const newScript = document.createElement("script");
+                    // If the script has a 'src', set it
+                    if (script.src) {
+                        newScript.src = script.src;
+                    } else {
+                        // If it's inline script, set its content
+                        newScript.textContent = script.textContent;
+                    }
+                    document.body.appendChild(newScript);
+                }
             });
     });
+    
+    
 });
 
 
@@ -102,11 +118,6 @@ function getCookie(name) {
 //     }
 // });
 
-
-
-
-
-
 // Check if the user is signed in
 
 // Set up the Firebase authentication state change listener once
@@ -139,4 +150,4 @@ function getCookie(name) {
 //     }
 // });
 
-
+// Define variables to track time and state
