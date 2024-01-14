@@ -130,7 +130,7 @@ function saveNotes() {
   chrome.storage.local.set({ notes });
 }
 
-// Load saved state and notes
+///Load saved state and notes
 
 chrome.storage.local.get(['currentSessionTime', 'isTimerRunning', 'notes'], function(result) {
       if (result.currentSessionTime !== undefined) {
@@ -144,5 +144,7 @@ chrome.storage.local.get(['currentSessionTime', 'isTimerRunning', 'notes'], func
           result.notes.forEach(noteContent => addNote(noteContent));
       }
   });
+
+
 
 

@@ -392,43 +392,47 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function addNote(noteContent) {
-  const ul = document.getElementById('notesList');
-  const li = document.createElement('li');
-  li.textContent = noteContent;
-
+    const ul = document.getElementById('notesList');
+    const li = document.createElement('li');
+    li.textContent = noteContent;
   
-  const editInput = document.createElement('input');
-  editInput.type = 'text';
-  editInput.style.display = 'none';
-  li.appendChild(editInput);
-
+    const editInput = document.createElement('input');
+    editInput.type = 'text';
+    editInput.style.display = 'none';
+    li.appendChild(editInput);
   
-  const editButton = document.createElement('button');
-  editButton.textContent = 'Edit';
-  li.appendChild(editButton);
-
+    const editButton = document.createElement('button');
+    editButton.textContent = 'Edit';
+    li.appendChild(editButton);
   
-  editButton.addEventListener('click', function() {
+    const deleteButton = document.createElement('button');
+    deleteButton.textContent = 'Delete';
+    li.appendChild(deleteButton);
+  
+    editButton.addEventListener('click', function() {
       if (editButton.textContent === 'Edit') {
-          editInput.value = noteContent;
-          editInput.style.display = 'inline';
-          editButton.textContent = 'Save';
-          li.firstChild.style.display = 'none'; 
-          
+        editInput.value = noteContent;
+        editInput.style.display = 'inline';
+        editButton.textContent = 'Save';
+        li.firstChild.style.display = 'none'; 
       } else {
-          noteContent = editInput.value;
-          li.firstChild.textContent = noteContent;
-          editInput.style.display = 'none';
-          editButton.textContent = 'Edit';
-          li.firstChild.style.display = 'inline'; 
-          
+        noteContent = editInput.value;
+        li.firstChild.textContent = noteContent;
+        editInput.style.display = 'none';
+        editButton.textContent = 'Edit';
+        li.firstChild.style.display = 'inline'; 
       }
-  });
-
-  ul.appendChild(li);
-  saveNotes();
-
-}
+      saveNotes();
+    });
+  
+    deleteButton.addEventListener('click', function() {
+      ul.removeChild(li);
+      saveNotes();
+    });
+  
+    ul.appendChild(li);
+    saveNotes();
+  }  
 
 function saveTimerState() {
   chrome.storage.local.set({ currentSessionTime, isTimerRunning });
