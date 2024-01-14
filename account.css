@@ -1,0 +1,36 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+}
+
+#totalTimeDisplay {
+    background-color: #ff9800;
+    color: white;
+    padding: 10px;
+    text-align: center;
+    font-size: 1.2em;
+}
+
+h1 {
+    background-color: #333;
+    color: white;
+    padding: 10px 0;
+    text-align: center;
+    margin: 0;
+}
+
+#timeData, #blockedSites, #categoryTimeData {
+    background-color: white;
+    margin: 15px;
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#timeData p, #blockedSites p, #categoryTimeData p {
+    font-size: 1em;
+    line-height: 1.5;
+    color: #333;
+}

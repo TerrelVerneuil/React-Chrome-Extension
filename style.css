@@ -1,0 +1,66 @@
+body{
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    background-color: #ffffff;
+    
+}
+
+#Toggle{
+    margin: 15px;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+
+}
+#SignInButton{
+    margin: 15px;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+
+}
+
+
+
+#topBox {
+    background-color: #888828; /* Set your preferred grey color */
+    height: 100px; /* Set the height of the box */
+    width: 70%; /* Set the width of the box */
+    margin: 0 auto; /* Center the box horizontally */
+    position: absolute; /* Position the box absolutely */
+    top: 0; /* Align the box to the top of the popup */
+    left: 0; /* Align the box to the left of the popup */
+    right: 0;
+    width: 20px; /* Set the width of the PNG */
+    height: auto; 
+}
+#Account{
+    
+        background-color: white;
+        color: #fff;
+        border: none;
+        padding: 10px 20px;
+        /* margin: 0 10px; */
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1em;
+        margin: 10px;
+
+}
+#goToAnotherPage{
+    background-color: tomato; /* Visually appealing color */
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+    margin: 11px;
+}
