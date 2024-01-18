@@ -25,6 +25,12 @@
     "https://*/*"
 ],
 
+"web_accessible_resources": [
+  "firebase-init.js",
+  "path/to/other/modules/*.js"
+],
+
+
   "content_security_policy": "script-src 'self' https://www.gstatic.com; object-src 'self';"
 
 

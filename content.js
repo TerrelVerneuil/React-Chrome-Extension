@@ -103,20 +103,53 @@ function getCookie(name) {
     return null;
 }
 
+(async () => {
+    console.log("test");
+    const modulePath = chrome.runtime.getURL("firebase-init.js");
+    await import(modulePath);
+
+    window.addEventListener('message', function(event) {
+        console.log("test");
+        // Ensure the message is from your domain and contains the expected data
+        if (event.origin === "http://localhost:3000" && event.data.action === "userSignedIn") {
+            const uid = event.data.uid;
+            setCookie('uid', uid, 30); 
+            const storedUid = getCookie(uid); 
+            console.log(storedUid); 
+        }
+    });
+    window.loadFirebase().then(({ app, auth , db}) => {
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                // User is signed in
+                console.log('User is signed in:', user.uid);
+                // Update UI accordingly
+            } else {
+                console.log('User is not signed in');
+            }
+
+
+            
+        });
+
+
+    }).catch((error) => {
+        console.error("Error loading Firebase:", error);
+    });
+})();
+
+
+
+  
 
 
 
 
 
-// window.addEventListener('message', function(event) {
-//     // Ensure the message is from your domain and contains the expected data
-//     if (event.origin === "http://localhost:3000" && event.data.action === "userSignedIn") {
-//         const uid = event.data.uid;
-//         setCookie('uid', uid, 30); 
-//         const storedUid = getCookie('uid'); 
-//         console.log(storedUid); 
-//     }
-// });
+
+
+
+
 
 // Check if the user is signed in
 
@@ -151,3 +184,10 @@ function getCookie(name) {
 // });
 
 // Define variables to track time and state
+
+
+
+
+
+
+

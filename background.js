@@ -394,7 +394,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function addNote(noteContent) {
     const ul = document.getElementById('notesList');
     const li = document.createElement('li');
-    li.textContent = noteContent;
+    li.textContent = "Put Anything Here";
   
     const editInput = document.createElement('input');
     editInput.type = 'text';
@@ -422,7 +422,7 @@ function addNote(noteContent) {
         editButton.textContent = 'Edit';
         li.firstChild.style.display = 'inline'; 
       }
-      saveNotes();
+      //saveNotes();
     });
   
     deleteButton.addEventListener('click', function() {
@@ -460,6 +460,7 @@ chrome.storage.local.get(['currentSessionTime', 'isTimerRunning', 'notes'], func
 
 
 
+
+
+
   
-
-
