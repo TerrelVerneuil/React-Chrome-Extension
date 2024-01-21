@@ -53,7 +53,6 @@ document.getElementById("Account").addEventListener("click", function() {
     const newPageURL = chrome.runtime.getURL("Account.html");
     chrome.tabs.create({ url: newPageURL });
 });
-
 // popup.js
 document.addEventListener("DOMContentLoaded", function() {
     const mainPopup = document.getElementById("mainPopup");
@@ -125,7 +124,7 @@ function getCookie(name) {
                 console.log('User is signed in:', user.uid);
                 // Update UI accordingly
             } else {
-                console.log('User is not signed in');
+                console.log('User is not signed in, u sure');
             }
 
 
@@ -137,6 +136,19 @@ function getCookie(name) {
         console.error("Error loading Firebase:", error);
     });
 })();
+
+
+// popup.js
+document.addEventListener('DOMContentLoaded', function () {
+    // Get the "home" button element
+    var homeButton = document.getElementById('Home');
+
+    // Add a click event listener to the "home" button
+    homeButton.addEventListener('click', function () {
+        // Send a message to background.js to update the current tab's URL
+        chrome.runtime.sendMessage({ action: 'goHome' });
+    });
+});
 
 
 

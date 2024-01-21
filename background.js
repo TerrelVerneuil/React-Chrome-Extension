@@ -460,6 +460,30 @@ chrome.storage.local.get(['currentSessionTime', 'isTimerRunning', 'notes'], func
 
 
 
+//   document.addEventListener('DOMContentLoaded', function () {
+//     // Get the "home" button element
+//     var homeButton = document.getElementById('home');
+
+//     // Add a click event listener to the "home" button
+//     homeButton.addEventListener('click', function () {
+//         // Navigate back to popup.html
+//         chrome.tabs.update({url: 'popup.html'});
+//         console.log("hello")
+//     });
+// });
+
+
+// background.js
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+    if (request.action === "goHome") {
+        // Get the active tab and update its URL
+        chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
+            if (tabs[0]) {
+                chrome.tabs.update(tabs[0].id, { url: 'popup.html' });
+            }
+        });
+    }
+});
 
 
 

@@ -3,6 +3,7 @@ body {
     margin: 0;
     padding: 20px;
     background-color: #f6eded;
+    justify-content: space-between;
 }
 
 #pomodoro-app {
@@ -68,3 +69,10 @@ button:hover {
     border-radius: 5px;
 }
 
+#home:hover{
+
+}
+
+#Account{
+    margin: 10px;
+}
